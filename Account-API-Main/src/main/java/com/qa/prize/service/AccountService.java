@@ -3,6 +3,7 @@ package com.qa.prize.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -15,11 +16,11 @@ public class AccountService {
 
 	private AccountRepo repo;
 	private RestTemplate rest;
-	
-	public AccountService(RestTemplateBuilder builder, AccountRepo repo) {
+
+	public AccountService(AccountRepo repo, RestTemplate rest) {
 		super();
-		this.rest = builder.build();
 		this.repo = repo;
+		this.rest = rest;
 	}
 
 	public List<Account> getAccounts() {
@@ -27,8 +28,9 @@ public class AccountService {
 	}
 
 	public Account addAccount(Account account) {
-		account.setLotteryNumber(this.rest.getForObject("http://localhost:8001/number/generate", String.class));
-		account.setPrize(this.rest.getForObject("http://localhost:8002/prize/generate/" + account.getLotteryNumber(), int.class));
+		account.setLotteryNumber(this.rest.getForObject("http://num-gen/number/generate", String.class));
+		String prize = this.rest.getForObject("http://prize-gen/prize/generate/" + account.getLotteryNumber(), String.class);
+		account.setPrize(Integer. parseInt(prize));
 		return this.repo.save(account);
 	}
 

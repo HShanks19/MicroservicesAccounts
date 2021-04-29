@@ -20,7 +20,7 @@ public class PrizeGenController {
 	}
 
 	@GetMapping("/generate/{generatedString}")
-	public ResponseEntity<Integer> getPrize(@PathVariable String generatedString) {
+	public ResponseEntity<String> getPrize(@PathVariable String generatedString) {
 		return ResponseEntity.ok(this.service.returnPrize(generatedString));
 	}
 }
