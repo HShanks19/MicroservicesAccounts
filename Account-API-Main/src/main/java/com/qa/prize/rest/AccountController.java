@@ -31,6 +31,11 @@ public class AccountController {
 	public ResponseEntity<Account> registerAccount(@RequestBody Account account) {
 		return new ResponseEntity<Account>(this.service.addAccount(account), HttpStatus.CREATED);
 	}
+	
+	@PostMapping("/registerQueue")
+	public void registerQAccount(@RequestBody Account account) {
+		this.service.registerAccount(account);
+	}
 
 	@GetMapping("/getAll")
 	public ResponseEntity<List<Account>> getAccounts() {
@@ -51,4 +56,9 @@ public class AccountController {
 	public ResponseEntity<Account> updateAccount(@PathVariable Long id, @RequestBody Account account) {
 		return new ResponseEntity<>(this.service.updateAccount(account, id), HttpStatus.ACCEPTED);
 	}
+	
+	@PutMapping("/addToQ/{id}")
+    public void sendToQ(@PathVariable Long id) {
+        this.service.sendAccount(id);
+    }
 }

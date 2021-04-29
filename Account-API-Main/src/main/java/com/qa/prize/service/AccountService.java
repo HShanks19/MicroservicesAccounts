@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,11 +17,13 @@ public class AccountService {
 
 	private AccountRepo repo;
 	private RestTemplate rest;
+	private JmsTemplate jms;
 
-	public AccountService(AccountRepo repo, RestTemplate rest) {
+	public AccountService(AccountRepo repo, RestTemplate rest, JmsTemplate jms) {
 		super();
 		this.repo = repo;
 		this.rest = rest;
+		this.jms = jms;
 	}
 
 	public List<Account> getAccounts() {
@@ -50,5 +53,20 @@ public class AccountService {
 		toUpdate.setPassword(account.getPassword());
 		return repo.save(toUpdate);
 	}
+	
+
+    public void sendAccount(Long id) {
+    	Account account = this.repo.findById(id).orElse(null);
+    	String username = account.getUsername();
+    	String prize = "" + account.getPrize();
+    	String toSend = "Username: " + username + " Prize: " + prize;
+        jms.convertAndSend("first-queue", toSend);
+    }
+    
+    public void registerAccount(Account account) {
+    	addAccount(account);
+    	Long id = account.getId();
+    	sendAccount(id);
+    }
 
 }
